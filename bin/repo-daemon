@@ -10,7 +10,7 @@ while true; do
 			if [ -d "${pkg_root}/${repo_name}/${pkg_name}" ]; then
 				cd "${pkg_root}/${repo_name}/${pkg_name}"
 				
-				check "${repo_name}"
+				pkg-check "${repo_name}"
 			fi
 		done
 	done

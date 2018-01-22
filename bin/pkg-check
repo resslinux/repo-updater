@@ -1,0 +1,40 @@
+#!/bin/sh
+
+repo_root=$(grep "^repo_root=" "/etc/repo-daemon.conf" | cut -d = -f 2)
+
+pkg_name=$(basename "${PWD}")
+repo_name=$(basename $(dirname "${PWD}"))
+
+#Check if package is in blacklist
+grep -q -x "${pkg_name}" "${repo_root}/blacklist.txt"
+
+if [ $? -eq 0 ]; then
+	return 0
+fi
+
+git pull
+
+#Save old version number
+local old_ver=$(grep "^pkgver=" PKGBUILD | cut -d = -f 2)
+
+#Download newest version available
+makepkg -do
+
+#If some errors occured add package to blacklist
+if [ ! $? -eq 0 ]; then
+	echo "${pkg_name}" >> "${repo_root}/blacklist.txt"
+	return 1
+fi
+
+#Save new version number
+local new_ver=$(grep "^pkgver=" PKGBUILD | cut -d = -f 2)
+
+#If version changed add package to compile queue
+if [ ! "${old_ver}" = "${new_ver}" ]; then
+	#Commit version changes to GIT repo
+	git add -u
+	git commit -m "Updating ${pkg_name} to version ${new_ver}"
+	git push
+	
+	pkg-compile "${repo_name}"
+fi

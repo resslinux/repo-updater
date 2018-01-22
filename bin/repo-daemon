@@ -1,0 +1,20 @@
+#!/bin/sh
+
+pkg_root=$(grep "^pkg_root=" "/etc/repo-daemon.conf" | cut -d = -f 2)
+repo_root=$(grep "^repo_root=" "/etc/repo-daemon.conf" | cut -d = -f 2)
+
+while true; do
+	#Check for updates for all packages in base dir
+	for repo_name in $(ls -1 "${pkg_root}"); do
+		for pkg_name in $(ls -1 "${pkg_root}/${repo_name}"); do
+			if [ -d "${pkg_root}/${repo_name}/${pkg_name}" ]; then
+				cd "${pkg_root}/${repo_name}/${pkg_name}"
+				
+				check "${repo_name}"
+			fi
+		done
+	done
+	
+	#check only once per hour
+	sleep 3600
+done

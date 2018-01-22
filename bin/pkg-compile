@@ -1,0 +1,28 @@
+#!/bin/sh
+
+#TODO
+#Remove old versions of packages from repo
+
+repo_root=$(grep "^repo_root=" "/etc/repo-daemon.conf" | cut -d = -f 2)
+
+pkg_name=$(basename "${PWD}")
+repo_name=$(basename $(dirname "${PWD}"))
+
+if [ ! $# -eq 1 ]; then
+	echo "Wrong number of parameters !"
+	exit
+fi
+
+#Build package using makepkg
+makepkg -d --holdver
+
+#If some errors occured add package to blacklist
+if [ ! $? -eq 0 ]; then
+	echo "${pkg_name}" >> "${repo_root}/blacklist.txt"
+	return 1
+fi
+
+#Add *.pkg.tar.gz files into repo and move them to repo dir
+for package in *.pkg.tar.gz; do
+	pkg-add "${repo_name}" "${package}"
+done

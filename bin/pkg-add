@@ -1,0 +1,33 @@
+#!/bin/sh
+
+# $1 - filename
+
+if [ ! $# -eq 1 ]; then
+	echo "Wrong number of parameters !"
+	exit
+fi
+
+filename="$1"
+
+repo_name=$(basename $(dirname "${PWD}"))
+repo_root=$(grep "^repo_root=" "/etc/repo-daemon.conf" | cut -d = -f 2)
+
+arch=$(uname -m)
+
+pkgname=$(echo "${filename}" | cut -d . -f 1 | rev | cut -d "-" -f 2- | rev)
+extension=$(echo "${pkgname}" | rev | cut -d "-" -f 1 | rev)
+
+if [ "${extension}" = "dev" ]; then
+	repo_name="${repo_name}-dev"
+elif [ "${extension}" = "doc" ]; then
+	repo_name="${repo_name}-doc"
+fi
+
+if [ ! -d "${repo_root}/${repo_name}/${arch}" ]; then
+	mkdir -p "${repo_root}/${repo_name}/${arch}"
+fi
+
+repo-add -R "${repo_root}/${repo_name}/${arch}/${repo_name}.db.tar.gz" "${filename}"
+
+#move package file to repo dir
+mv "${filename}" "${repo_root}/${repo_name}/${arch}/"

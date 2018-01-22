@@ -15,7 +15,7 @@ fi
 git pull
 
 #Save old version number
-local old_ver=$(grep "^pkgver=" PKGBUILD | cut -d = -f 2)
+old_ver=$(grep "^pkgver=" PKGBUILD | cut -d = -f 2)
 
 #Download newest version available
 makepkg -do
@@ -27,7 +27,7 @@ if [ ! $? -eq 0 ]; then
 fi
 
 #Save new version number
-local new_ver=$(grep "^pkgver=" PKGBUILD | cut -d = -f 2)
+new_ver=$(grep "^pkgver=" PKGBUILD | cut -d = -f 2)
 
 #If version changed add package to compile queue
 if [ ! "${old_ver}" = "${new_ver}" ]; then

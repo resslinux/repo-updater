@@ -8,11 +8,6 @@ repo_root=$(grep "^repo_root=" "/etc/repo-daemon.conf" | cut -d = -f 2)
 pkg_name=$(basename "${PWD}")
 repo_name=$(basename $(dirname "${PWD}"))
 
-if [ ! $# -eq 1 ]; then
-	echo "Wrong number of parameters !"
-	exit
-fi
-
 #Build package using makepkg
 makepkg -d --holdver
 
@@ -24,5 +19,5 @@ fi
 
 #Add *.pkg.tar.gz files into repo and move them to repo dir
 for package in *.pkg.tar.gz; do
-	pkg-add "${repo_name}" "${package}"
+	pkg-add "${package}"
 done

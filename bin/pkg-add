@@ -17,7 +17,7 @@ arch=$(uname -m)
 pkgname=$(echo "${filename}" | cut -d . -f 1 | rev | cut -d "-" -f 2- | rev)
 extension=$(echo "${pkgname}" | rev | cut -d "-" -f 1 | rev)
 
-if [ "${extension}" = "dev" ]; then
+if [ "${extension}" = "dev" ] && [ ! "${repo_name}" = "ress-devel" ]; then
 	repo_name="${repo_name}-dev"
 elif [ "${extension}" = "doc" ]; then
 	repo_name="${repo_name}-doc"
